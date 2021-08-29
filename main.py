@@ -65,8 +65,27 @@ async def main():
             await asyncio.sleep(0.5)
 
     msg_task = asyncio.create_task(group_message_handler())
+
+    # 心跳
+    async def heartbeat():
+        msg = {
+            "syncId": 123,
+            "command": "about",
+            "subCommand": None,
+            "content": {
+                "sessionKey":bot_data['session']
+            }
+        }
+        while True:
+            await ws.send(json.dumps(msg))
+            await asyncio.sleep(60)
+            print('心跳')
+
+    heartbeat_task = asyncio.create_task(heartbeat())
+
     await danmaku
     await msg_task
+    await heartbeat_task
 
 if __name__ == '__main__':
     asyncio.run(main())
